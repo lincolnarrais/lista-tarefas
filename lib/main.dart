@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -80,26 +81,42 @@ class _HomeState extends State<Home> {
             child: ListView.builder(
               padding: EdgeInsets.only(top: 10.0),
               itemCount: _toDoList.length,
-              itemBuilder: (ctx, index) {
-                return CheckboxListTile(
-                  title: Text(_toDoList[index]['title']),
-                  value: _toDoList[index]['ok'],
-                  secondary: CircleAvatar(
-                    child: Icon(
-                      _toDoList[index]['ok'] ? Icons.check : Icons.error,
-                    ),
-                  ),
-                  onChanged: (c) {
-                    setState(() {
-                      _toDoList[index]['ok'] = c;
-                      _saveData();
-                    });
-                  },
-                );
-              },
+              itemBuilder: buildItem,
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget buildItem(BuildContext context, int index) {
+    return Dismissible(
+      background: Container(
+        color: Colors.red,
+        child: Align(
+          alignment: Alignment(-0.9, 0.0),
+          child: Icon(
+            Icons.delete,
+            color: Colors.white,
+          ),
+        ),
+      ),
+      direction: DismissDirection.startToEnd,
+      key: Key(Random().nextDouble().toString()),
+      child: CheckboxListTile(
+        title: Text(_toDoList[index]['title']),
+        value: _toDoList[index]['ok'],
+        secondary: CircleAvatar(
+          child: Icon(
+            _toDoList[index]['ok'] ? Icons.check : Icons.error,
+          ),
+        ),
+        onChanged: (c) {
+          setState(() {
+            _toDoList[index]['ok'] = c;
+            _saveData();
+          });
+        },
       ),
     );
   }
