@@ -41,9 +41,47 @@ class _HomeState extends State<Home> {
       newToDo['title'] = _toDoController.text;
       _toDoController.text = '';
       newToDo['ok'] = false;
+      newToDo['dateTime'] = DateTime.now().toIso8601String();
       _toDoList.add(newToDo);
 
+      print('title: ${newToDo['title']}\ndateTime: ${newToDo['dateTime']}');
+
       _saveData();
+    });
+  }
+
+  Future<Null> _refresh() async {
+    await Future.delayed(Duration(seconds: 1));
+
+    setState(() {
+      _sortByCreationDate();
+      _sortByUnchecked();
+
+      _saveData();
+    });
+
+    return null;
+  }
+
+  void _sortByUnchecked() {
+    _toDoList.sort((a, b) {
+      if (a['ok'] && !b['ok'])
+        return 1;
+      else if (!a['ok'] && b['ok'])
+        return -1;
+      else
+        return 0;
+    });
+  }
+
+  void _sortByCreationDate() {
+    _toDoList.sort((a, b) {
+      final Duration difference = DateTime.parse(a['dateTime'])
+          .difference(DateTime.parse(b['dateTime']));
+
+      return difference.inSeconds != 0
+          ? difference.inSeconds
+          : difference.inMilliseconds;
     });
   }
 
@@ -80,10 +118,13 @@ class _HomeState extends State<Home> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.only(top: 10.0),
-              itemCount: _toDoList.length,
-              itemBuilder: buildItem,
+            child: RefreshIndicator(
+              child: ListView.builder(
+                padding: EdgeInsets.only(top: 10.0),
+                itemCount: _toDoList.length,
+                itemBuilder: buildItem,
+              ),
+              onRefresh: _refresh,
             ),
           ),
         ],
@@ -121,25 +162,9 @@ class _HomeState extends State<Home> {
         },
       ),
       onDismissed: (_) {
-        /// TODO: Testar se
-        ///
-        /// ```dart
-        /// _lastRemovedPos = index;
-        /// _lastRemoved = _toDoList.removeAt(index);
-        /// ```
-        ///
-        /// tem o mesmo efeito que
-        ///
-        /// ```
-        /// _lastRemoved = Map.from(_toDoList[index]);
-        /// _lastRemovedPos = index;
-        /// _toDoList.removeAt(index);
-        /// ```
-
         setState(() {
-          _lastRemoved = Map.from(_toDoList[index]);
           _lastRemovedPos = index;
-          _toDoList.removeAt(index);
+          _lastRemoved = _toDoList.removeAt(index);
 
           _saveData();
 
@@ -153,7 +178,7 @@ class _HomeState extends State<Home> {
                 });
               },
             ),
-            duration: Duration(seconds: 2),
+            duration: Duration(seconds: 4),
           );
 
           Scaffold.of(context).showSnackBar(snack);
