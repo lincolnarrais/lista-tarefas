@@ -7,15 +7,20 @@ import 'package:path_provider/path_provider.dart';
 void main() {
   runApp(
     MaterialApp(
-      home: Home(),
+      title: 'Lista de Tarefas',
       theme: ThemeData(
         primaryColor: Colors.blueAccent,
       ),
+      home: Home(title: 'Lista de Tarefas'),
     ),
   );
 }
 
 class Home extends StatefulWidget {
+  final String title;
+
+  const Home({this.title});
+
   @override
   _HomeState createState() => _HomeState();
 }
@@ -92,14 +97,14 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lista de Tarefas'),
+        title: Text(widget.title),
         backgroundColor: Theme.of(context).primaryColor,
       ),
       body: Column(
         children: <Widget>[
           Container(
-            padding:
-                EdgeInsets.only(left: 17.0, top: 1.0, right: 7.0, bottom: 1.0),
+            padding: const EdgeInsets.only(
+                left: 17.0, top: 1.0, right: 7.0, bottom: 1.0),
             child: Row(
               children: <Widget>[
                 Expanded(
@@ -124,7 +129,7 @@ class _HomeState extends State<Home> {
           Expanded(
             child: RefreshIndicator(
               child: ListView.builder(
-                padding: EdgeInsets.only(top: 10.0),
+                padding: const EdgeInsets.only(top: 10.0),
                 itemCount: _toDoList.length,
                 itemBuilder: buildItem,
               ),
